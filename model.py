@@ -7,6 +7,12 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
+MODEL_PATH = "best_sentiment_analysis_model.pth"
+TOKENIZER_PATH = "tokenizer.json"
+EMBEDDING_PATH = "embedding_matrix.npy"
+
+
 # Define your model architecture (ensure it matches the training architecture)
 class SentimentLSTM(nn.Module):
     def __init__(self, vocab_size, embedding_dim=100, hidden_dim=128, n_layers=2, embedding_matrix=None):
@@ -34,11 +40,11 @@ class SentimentLSTM(nn.Module):
 
 def load_model(): 
     # Load the tokenizer dictionary
-    with open(os.getenv("TOKENIZER_PATH"), 'r') as f:
+    with open(TOKENIZER_PATH, 'r') as f:
         tokenizer = json.load(f)
 
     # Load the saved embedding matrix
-    embedding_matrix = np.load(os.getenv("EMBEDDING_PATH"))
+    embedding_matrix = np.load(EMBEDDING_PATH)
     embedding_matrix = torch.tensor(embedding_matrix, dtype=torch.float32)
 
     # Initialize the model with the embedding matrix
@@ -46,7 +52,7 @@ def load_model():
     model = SentimentLSTM(vocab_size, embedding_dim=embedding_matrix.shape[1], embedding_matrix=embedding_matrix)
     
     # Load the saved model weights
-    model.load_state_dict(torch.load(os.getenv("MODEL_PATH"), map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load(MODEL_PATH, map_location=torch.device('cpu')))
     device = torch.device("cpu")
     model.to(device)
     model.eval()

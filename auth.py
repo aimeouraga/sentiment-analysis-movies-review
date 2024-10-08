@@ -6,9 +6,17 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 import os
+import time
 load_dotenv()
 
 
+SECRET_KEY = "83daa0256a2289b0fb23693bf1f6034d44396675749244721a2b20e896e11662"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+USER_NAME = "user"
+EMAIL = "aimeouraga57@gmail.com"
+PASSWORD = "userpass"
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -18,10 +26,10 @@ def get_password_hash(password):
 
 
 db = {
-    os.getenv("USER_NAME"): {
-        "username": os.getenv("USER_NAME"),
-        "email": os.getenv("EMAIL"),
-        "hashed_password": get_password_hash(os.getenv("PASSWORD")),
+    USER_NAME: {
+        "username": USER_NAME,
+        "email": EMAIL,
+        "hashed_password": get_password_hash(PASSWORD),
         "disabled": False
     }
 }
@@ -77,7 +85,7 @@ def create_access_token(data: dict, expires_delta: timedelta or None = None):
         expire = datetime.utcnow() + timedelta(minutes=15)
 
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, os.getenv("SECRET_KEY"), algorithm=os.getenv("ALGORITHM"))
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
@@ -85,7 +93,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                          detail="Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
     try:
-        payload = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=[os.getenv("ALGORITHM")])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
             raise credential_exception

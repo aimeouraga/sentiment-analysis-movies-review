@@ -10,11 +10,16 @@ import os
 
 load_dotenv()
 
+
+TOKENIZER_PATH = "tokenizer.json"
+MAX_LENGTH = 200
+
+
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('punkt_tab')
 
-with open(os.getenv("TOKENIZER_PATH"), 'r') as f:
+with open(TOKENIZER_PATH, 'r') as f:
     tokenizer = json.load(f)
 
 def clean_text(text):
@@ -27,7 +32,7 @@ def clean_text(text):
 def text_to_sequence(text):
     return [tokenizer.get(word, 0) for word in word_tokenize(text)] 
 
-def pad_sequence(sequence, maxlen= int(os.getenv("MAX_LENGTH"))):
+def pad_sequence(sequence, maxlen= int(MAX_LENGTH)):
    
     return np.array(np.pad(sequence, (0, max(0, maxlen - len(sequence))), 'constant')[:maxlen])
 
